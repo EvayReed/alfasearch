@@ -1,8 +1,10 @@
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export const configureGoogleSignIn = () => {
-  GoogleSignin.configure({
-    // Web 客户端 ID（从 google-services.json 获取）
+  console.log('🔧 配置 Google Sign-In...');
+  
+  const config = {
+    // 重新添加 webClientId - offlineAccess 需要它
     webClientId: '306494201348-8gvsvr5o3v8ob5068a7rflimn6ihdlk8.apps.googleusercontent.com',
     
     // iOS 客户端 ID（从 GoogleService-Info.plist 获取）
@@ -12,10 +14,16 @@ export const configureGoogleSignIn = () => {
     scopes: ['profile', 'email'],
     
     // 其他配置
-    offlineAccess: true,
+    offlineAccess: false, // 临时禁用以避免 webClientId 问题
     hostedDomain: '',
-    forceCodeForRefreshToken: true,
-  });
+    forceCodeForRefreshToken: false, // 与 offlineAccess 相关，一起禁用
+  };
+  
+  console.log('📋 Google Sign-In 配置:', config);
+  
+  GoogleSignin.configure(config);
+  
+  console.log('✅ Google Sign-In 配置完成');
 };
 
 // 开发环境提示

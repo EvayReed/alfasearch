@@ -79,7 +79,10 @@ export default function LoginScreen() {
             {/* 开发提示 */}
             <View style={styles.devHintContainer}>
               <ThemedText style={styles.devHintText}>
-                开发模式：点击下方按钮查看配置说明
+                🔧 当前使用开发模式登录
+              </ThemedText>
+              <ThemedText style={styles.devHintSubtext}>
+                点击登录按钮将使用测试账户，无需 Google 账户
               </ThemedText>
               <ThemedText
                 style={[styles.setupLink, { color: tintColor }]}
@@ -176,6 +179,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     opacity: 0.8,
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  devHintSubtext: {
+    fontSize: 12,
+    textAlign: 'center',
+    opacity: 0.6,
     marginBottom: 8,
   },
   setupLink: {

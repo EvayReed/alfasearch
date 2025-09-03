@@ -57,11 +57,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
 
+      // 开发模式：临时跳过 Google 登录以测试应用功能
+      if (__DEV__) {
+        console.log('🔧 使用开发模式登录（跳过 Google Sign-In）');
+        
+        // 模拟网络延迟
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const mockUser: User = {
+          id: 'dev_user_001',
+          email: 'developer@alfasearch.com',
+          name: '开发测试用户',
+          avatar: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
+          givenName: '开发',
+          familyName: '用户',
+        };
+        
+        await AsyncStorage.setItem(AUTH_STORAGE_KEY, 'dev_token_' + Date.now());
+        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(mockUser));
+        
+        dispatch({ type: 'SET_USER', payload: mockUser });
+        console.log('🎉 开发模式登录成功');
+        return;
+      }
+
+      console.log('🔧 开始 Google 登录流程...');
+      console.log('📋 当前配置:', {
+        webClientId: '306494201348-8gvsvr5o3v8ob5068a7rflimn6ihdlk8.apps.googleusercontent.com',
+        iosClientId: '306494201348-n16r4cv88omcp9ds9alfbc10t9h9m8kd.apps.googleusercontent.com'
+      });
+
       // 检查 Google Play Services 是否可用
+      console.log('🔍 检查 Google Play Services...');
       await GoogleSignin.hasPlayServices();
+      console.log('✅ Google Play Services 可用');
       
       // 执行 Google 登录
+      console.log('🚀 开始 Google 登录...');
       const googleUser: GoogleUser = await GoogleSignin.signIn();
+      console.log('✅ Google 登录成功:', {
+        id: googleUser.user.id,
+        email: googleUser.user.email,
+        name: googleUser.user.name
+      });
       
       // 转换 Google 用户信息为应用用户格式
       const user: User = {
@@ -78,9 +116,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
       
       dispatch({ type: 'SET_USER', payload: user });
-    } catch (error) {
+      console.log('🎉 用户信息已保存');
+    } catch (error: any) {
       dispatch({ type: 'SET_LOADING', payload: false });
-      console.error('Google 登录失败:', error);
+      console.error('❌ Google 登录失败:', error);
+      console.error('错误代码:', error?.code);
+      console.error('错误消息:', error?.message);
+      console.error('完整错误:', JSON.stringify(error, null, 2));
       throw error;
     }
   };
