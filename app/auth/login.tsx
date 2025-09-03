@@ -1,67 +1,55 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
 } from 'react-native';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/contexts/AuthContext';
-import { AuthInput } from '@/components/auth/AuthInput';
-import { AuthButton } from '@/components/auth/AuthButton';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { GOOGLE_SIGNIN_SETUP_INSTRUCTIONS } from '@/config/googleSignIn';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  
-  const { login, isLoading } = useAuth();
+  const { signInWithGoogle, isLoading } = useAuth();
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
 
-  const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    
-    if (!email.trim()) {
-      newErrors.email = '请输入邮箱地址';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = '请输入有效的邮箱地址';
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      let errorMessage = '登录失败，请重试';
+      
+      if (error?.code === 'SIGN_IN_CANCELLED') {
+        errorMessage = '登录已取消';
+      } else if (error?.code === 'IN_PROGRESS') {
+        errorMessage = '登录正在进行中...';
+      } else if (error?.code === 'PLAY_SERVICES_NOT_AVAILABLE') {
+        errorMessage = 'Google Play Services 不可用';
+      }
+      
+      Alert.alert('Google 登录', errorMessage);
     }
-    
-    if (!password.trim()) {
-      newErrors.password = '请输入密码';
-    } else if (password.length < 6) {
-      newErrors.password = '密码至少需要6位字符';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = async () => {
-    if (!validateForm()) return;
-    
-    try {
-      await login({ email: email.trim(), password });
-      router.replace('/(tabs)');
-    } catch (error) {
-      Alert.alert('登录失败', error instanceof Error ? error.message : '未知错误');
-    }
+  const showSetupInstructions = () => {
+    Alert.alert(
+      'Google Sign-In 配置',
+      GOOGLE_SIGNIN_SETUP_INSTRUCTIONS,
+      [{ text: '确定' }]
+    );
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={[styles.container, { backgroundColor }]}>
       <StatusBar style="auto" />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -74,64 +62,64 @@ export default function LoginScreen() {
               <Text style={styles.logoText}>AS</Text>
             </View>
             <ThemedText type="title" style={styles.title}>
-              欢迎回来
+              欢迎使用 AlfaSearch
             </ThemedText>
             <ThemedText style={[styles.subtitle, { color: textColor }]}>
-              登录您的 AlfaSearch 账户
+              使用您的 Google 账户快速登录
             </ThemedText>
           </View>
 
-          {/* 表单区域 */}
-          <View style={styles.form}>
-            <AuthInput
-              label="邮箱地址"
-              placeholder="请输入您的邮箱"
-              value={email}
-              onChangeText={setEmail}
-              error={errors.email}
-              keyboardType="email-address"
-              autoComplete="email"
-              leftIcon="envelope"
-            />
-
-            <AuthInput
-              label="密码"
-              placeholder="请输入您的密码"
-              value={password}
-              onChangeText={setPassword}
-              error={errors.password}
-              isPassword
-              autoComplete="password"
-              leftIcon="lock"
-            />
-
-            <AuthButton
-              title="登录"
-              onPress={handleLogin}
+          {/* 登录区域 */}
+          <View style={styles.loginSection}>
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
               loading={isLoading}
-              style={styles.loginButton}
             />
 
-            {/* 提示信息 */}
-            <View style={styles.hintContainer}>
-              <ThemedText style={styles.hintText}>
-                测试账户: admin@example.com / 123456
+            {/* 开发提示 */}
+            <View style={styles.devHintContainer}>
+              <ThemedText style={styles.devHintText}>
+                开发模式：点击下方按钮查看配置说明
+              </ThemedText>
+              <ThemedText
+                style={[styles.setupLink, { color: tintColor }]}
+                onPress={showSetupInstructions}
+              >
+                查看 Google Sign-In 配置指南
               </ThemedText>
             </View>
           </View>
 
-          {/* 底部链接 */}
-          <View style={styles.footer}>
-            <ThemedText style={styles.footerText}>
-              还没有账户？{' '}
-              <Link href="/auth/register" style={{ color: tintColor }}>
-                立即注册
-              </Link>
+          {/* 功能介绍 */}
+          <View style={styles.featuresSection}>
+            <ThemedText type="subtitle" style={styles.featuresTitle}>
+              为什么选择 Google 登录？
             </ThemedText>
+            
+            <View style={styles.featureItem}>
+              <Text style={[styles.featureIcon, { color: tintColor }]}>🔒</Text>
+              <ThemedText style={styles.featureText}>
+                安全可靠的身份验证
+              </ThemedText>
+            </View>
+            
+            <View style={styles.featureItem}>
+              <Text style={[styles.featureIcon, { color: tintColor }]}>⚡</Text>
+              <ThemedText style={styles.featureText}>
+                一键快速登录
+              </ThemedText>
+            </View>
+            
+            <View style={styles.featureItem}>
+              <Text style={[styles.featureIcon, { color: tintColor }]}>🔄</Text>
+              <ThemedText style={styles.featureText}>
+                跨设备同步数据
+              </ThemedText>
+            </View>
           </View>
         </ThemedView>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -150,7 +138,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 50,
   },
   logo: {
     width: 80,
@@ -174,29 +162,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
   },
-  form: {
-    flex: 1,
+  loginSection: {
+    marginBottom: 40,
   },
-  loginButton: {
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  hintContainer: {
+  devHintContainer: {
     backgroundColor: 'rgba(0, 122, 255, 0.1)',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 24,
+    alignItems: 'center',
   },
-  hintText: {
+  devHintText: {
     fontSize: 14,
     textAlign: 'center',
     opacity: 0.8,
+    marginBottom: 8,
   },
-  footer: {
-    alignItems: 'center',
-    paddingTop: 24,
-  },
-  footerText: {
+  setupLink: {
     fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  featuresSection: {
+    flex: 1,
+  },
+  featuresTitle: {
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  featureIcon: {
+    fontSize: 24,
+    marginRight: 16,
+    width: 32,
+    textAlign: 'center',
+  },
+  featureText: {
+    fontSize: 16,
+    flex: 1,
   },
 });

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "306494201348",
+    "project_id": "alfasearch",
+    "storage_bucket": "alfasearch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306494201348:android:ed559510be0f027d4fdf51",
+        "android_client_info": {
+          "package_name": "com.alfasearch.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306494201348-n6ct4ivsniqqcg3jsa99ka1co8hsr86g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alfasearch.app",
+            "certificate_hash": "79afac48144cfd06cfb17fb5b18c783503503ec0"
+          }
+        },
+        {
+          "client_id": "306494201348-8gvsvr5o3v8ob5068a7rflimn6ihdlk8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZt4zJThKNAuKyB2lobILJvumkNCXuah4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306494201348-8gvsvr5o3v8ob5068a7rflimn6ihdlk8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "306494201348-n16r4cv88omcp9ds9alfbc10t9h9m8kd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alfasearch.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
